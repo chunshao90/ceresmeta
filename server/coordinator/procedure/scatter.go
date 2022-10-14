@@ -214,6 +214,10 @@ func (p *ScatterProcedure) State() State {
 	return p.state
 }
 
+func (p *ScatterProcedure) Meta() *Meta {
+
+}
+
 func (p *ScatterProcedure) updateStateWithLock(state State) {
 	p.lock.Lock()
 	p.state = state

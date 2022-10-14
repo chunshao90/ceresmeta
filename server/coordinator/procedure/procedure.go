@@ -28,7 +28,8 @@ const (
 	Scatter
 )
 
-// Procedure is used to describe how to execute a set of operations from the scheduler, e.g. SwitchLeaderProcedure, MergeShardProcedure.
+// Procedure is used to describe how to execute a set of operations from the scheduler.
+// e.g. SwitchLeaderProcedure, MergeShardProcedure.
 type Procedure interface {
 	// ID of the procedure.
 	ID() uint64
@@ -44,6 +45,9 @@ type Procedure interface {
 
 	// State of the procedure. Retrieve the state of this procedure.
 	State() State
+
+	// Meta of the procedure. The procedure can be restored using meta.
+	Meta() *Meta
 }
 
 // nolint
