@@ -12,10 +12,8 @@ import (
 	"github.com/CeresDB/ceresmeta/server/cluster"
 	"github.com/CeresDB/ceresmeta/server/coordinator/eventdispatch"
 	"github.com/CeresDB/ceresmeta/server/coordinator/procedure"
-	"github.com/CeresDB/ceresmeta/server/storage"
 	"github.com/looplab/fsm"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 )
 
 // fsm state change:
@@ -227,10 +225,10 @@ func createPartitionTableCallback(event *fsm.Event) {
 	}
 	req.createTableResult = createTableResult
 
-	if err = procedure.CreateTableOnShard(req.ctx, req.cluster, req.dispatch, partTableShardNode.ShardInfo.ID, procedure.BuildCreateTableRequest(createTableResult, req.sourceReq, partInfo)); err != nil {
-		procedure.CancelEventWithLog(event, err, "dispatch create table on shard")
-		return
-	}
+	//if err = procedure.CreateTableOnShard(req.ctx, req.cluster, req.dispatch, partTableShardNode.ShardInfo.ID, procedure.BuildCreateTableRequest(createTableResult, req.sourceReq, partInfo)); err != nil {
+	//	procedure.CancelEventWithLog(event, err, "dispatch create table on shard")
+	//	return
+	//}
 }
 
 // 2. Create data tables in target nodes.
@@ -283,57 +281,57 @@ func openPartitionTableMetadataCallback(event *fsm.Event) {
 
 // 4. Open table on target shard.
 func openPartitionTableCallback(event *fsm.Event) {
-	req, err := procedure.GetRequestFromEvent[*callbackRequest](event)
-	if err != nil {
-		procedure.CancelEventWithLog(event, err, "get request from event")
-		return
-	}
-	table, exists, err := req.cluster.GetTable(req.sourceReq.SchemaName, req.sourceReq.Name)
-	if err != nil {
-		log.Error("get table", zap.Error(err))
-		procedure.CancelEventWithLog(event, err, "get table")
-		return
-	}
-
-	if !exists {
-		procedure.CancelEventWithLog(event, err, "the table to be closed does not exist")
-		return
-	}
-
-	for _, version := range req.versions {
-		shardNodes, err := req.cluster.GetShardNodesByShardID(version.ShardID)
-		if err != nil {
-			procedure.CancelEventWithLog(event, err, "get shard nodes by shard id")
-			return
-		}
-
-		for _, shardNode := range shardNodes {
-			// Open partition table on target shard.
-			if err := req.dispatch.OpenTableOnShard(req.ctx, shardNode.NodeName,
-				eventdispatch.OpenTableOnShardRequest{
-					UpdateShardInfo: eventdispatch.UpdateShardInfo{
-						CurrShardInfo: cluster.ShardInfo{
-							ID:      shardNode.ID,
-							Role:    shardNode.ShardRole,
-							Version: version.CurrVersion,
-						},
-						PrevVersion: version.PrevVersion,
-					},
-					TableInfo: cluster.TableInfo{
-						ID:         table.ID,
-						Name:       table.Name,
-						SchemaID:   table.SchemaID,
-						SchemaName: req.sourceReq.SchemaName,
-						PartitionInfo: storage.PartitionInfo{
-							Info: req.sourceReq.GetPartitionTableInfo().GetPartitionInfo(),
-						},
-					},
-				}); err != nil {
-				procedure.CancelEventWithLog(event, err, "open table on shard")
-				return
-			}
-		}
-	}
+	//req, err := procedure.GetRequestFromEvent[*callbackRequest](event)
+	//if err != nil {
+	//	procedure.CancelEventWithLog(event, err, "get request from event")
+	//	return
+	//}
+	//table, exists, err := req.cluster.GetTable(req.sourceReq.SchemaName, req.sourceReq.Name)
+	//if err != nil {
+	//	log.Error("get table", zap.Error(err))
+	//	procedure.CancelEventWithLog(event, err, "get table")
+	//	return
+	//}
+	//
+	//if !exists {
+	//	procedure.CancelEventWithLog(event, err, "the table to be closed does not exist")
+	//	return
+	//}
+	//
+	//for _, version := range req.versions {
+	//	shardNodes, err := req.cluster.GetShardNodesByShardID(version.ShardID)
+	//	if err != nil {
+	//		procedure.CancelEventWithLog(event, err, "get shard nodes by shard id")
+	//		return
+	//	}
+	//
+	//	for _, shardNode := range shardNodes {
+	//		// Open partition table on target shard.
+	//		if err := req.dispatch.OpenTableOnShard(req.ctx, shardNode.NodeName,
+	//			eventdispatch.OpenTableOnShardRequest{
+	//				UpdateShardInfo: eventdispatch.UpdateShardInfo{
+	//					CurrShardInfo: cluster.ShardInfo{
+	//						ID:      shardNode.ID,
+	//						Role:    shardNode.ShardRole,
+	//						Version: version.CurrVersion,
+	//					},
+	//					PrevVersion: version.PrevVersion,
+	//				},
+	//				TableInfo: cluster.TableInfo{
+	//					ID:         table.ID,
+	//					Name:       table.Name,
+	//					SchemaID:   table.SchemaID,
+	//					SchemaName: req.sourceReq.SchemaName,
+	//					PartitionInfo: storage.PartitionInfo{
+	//						Info: req.sourceReq.GetPartitionTableInfo().GetPartitionInfo(),
+	//					},
+	//				},
+	//			}); err != nil {
+	//			procedure.CancelEventWithLog(event, err, "open table on shard")
+	//			return
+	//		}
+	//	}
+	//}
 }
 
 func finishCallback(event *fsm.Event) {

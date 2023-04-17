@@ -297,6 +297,8 @@ func (s *Service) RouteTables(ctx context.Context, req *metaservicepb.RouteTable
 		return &metaservicepb.RouteTablesResponse{Header: responseHeader(err, "grpc routeTables")}, nil
 	}
 
+	log.Info("xxx route table", zap.String("ret", fmt.Sprintf("%v", routeTableResult)))
+
 	return convertRouteTableResult(routeTableResult), nil
 }
 

@@ -372,12 +372,14 @@ func (c *Cluster) RouteTables(_ context.Context, schemaName string, tableNames [
 			nodeShardsResult = []ShardNodeWithVersion{nodeShards[selectIndex.Uint64()]}
 		}
 		table := tables[tableID]
+
 		routeEntries[table.Name] = RouteEntry{
 			Table: TableInfo{
-				ID:         table.ID,
-				Name:       table.Name,
-				SchemaID:   table.SchemaID,
-				SchemaName: schemaName,
+				ID:            table.ID,
+				Name:          table.Name,
+				SchemaID:      table.SchemaID,
+				SchemaName:    schemaName,
+				PartitionInfo: table.PartitionInfo,
 			},
 			NodeShards: nodeShardsResult,
 		}
